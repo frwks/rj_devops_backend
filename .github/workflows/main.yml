@@ -131,7 +131,7 @@ jobs:
           platforms: linux/amd64
           push: true
 #           builder: ${{ steps.buildx.outputs.name }}
-          tags: frwksdocker/rj_devops
+          tags: frwksdocker/rj_devops_backend
 #           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
 
@@ -159,8 +159,19 @@ jobs:
       # 3000 -> 80 포트로 수행하도록 지정
       - name: Docker run
         run: |
-          docker stop $(docker ps -a -q)
-          docker rm $(docker ps -a -q)
-          docker rmi $(docker images -q)
+          docker container stop rj_backend
+          docker container rm rj_backend
+          docker rmi rj_backend
           docker pull ${{ env.DOCKER_IMAGE }}:latest
-          docker run -it -d -p 8080:8080 --name go_cicd --restart always ${{ env.DOCKER_IMAGE }}:latest
+          docker run -it -d -p 8080:8080 --name rj_backend --restart always ${{ env.DOCKER_IMAGE }}:latest
+          
+          
+    #      docker stop $(docker ps -a -q)
+   #       docker rm $(docker ps -a -q)
+  #        docker rmi $(docker images -q)
+ #         docker pull ${{ env.DOCKER_IMAGE }}:latest
+#          docker run -it -d -p 8080:8080 --name rj_backend --restart always ${{ env.DOCKER_IMAGE }}:latest
+          
+          
+          
+          

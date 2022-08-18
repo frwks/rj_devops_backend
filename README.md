@@ -1,2 +1,2 @@
 # rj_devops_backend
-rj backend
+rj backend project

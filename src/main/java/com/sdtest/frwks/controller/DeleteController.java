@@ -5,7 +5,7 @@ import com.sdtest.frwks.service.CatalogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://34.132.90.222:3306")
 @RestController
 @RequestMapping("/api2")
 public class DeleteController {

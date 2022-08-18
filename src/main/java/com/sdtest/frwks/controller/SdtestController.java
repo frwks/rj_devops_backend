@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://34.132.90.222:3306")
 @RestController
 @RequestMapping("/api")
 public class SdtestController {

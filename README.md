@@ -1,2 +1,2 @@
 # rj_devops_backend
-rj backend project
+rj backend springboot

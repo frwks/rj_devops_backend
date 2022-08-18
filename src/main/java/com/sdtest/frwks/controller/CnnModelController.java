@@ -9,9 +9,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class CnnModelController {
-    @GetMapping("/recipe/{rc_id}")
-    public List getSearchList(@PathVariable Integer rc_id){
-        System.out.println("검색완료");
-        return Collections.singletonList(recipeService.getSearchList(rc_id));
-    }
+//    @GetMapping("/recipe/{rc_id}")
+//    public List getSearchList(@PathVariable Integer rc_id){
+//        System.out.println("검색완료");
+//        return Collections.singletonList(recipeService.getSearchList(rc_id));
+//    }
 }

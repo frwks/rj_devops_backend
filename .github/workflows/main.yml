@@ -1,0 +1,177 @@
+# name: CI/CD Docker
+
+# # 트리거를 수행할 브랜치를 지정합니다.
+# on:
+#   push:
+#     branches: [ main ]
+
+# # 환경설정
+# env:
+#   DOCKER_IMAGE: frwksdocker/rj_devops
+# #   DOCKER_IMAGE: ghcr.io/frwksdocker/rj_Devops
+# # dofkd
+#   VERSION: ${{ github.sha }}
+#   NAME: go_cicd
+
+# jobs:
+#   # 빌드 Job
+#   build:
+#     name: Build
+#     runs-on: ubuntu-latest
+#     steps:
+#       # github repository에서 checkout
+# #       - uses: actions/checkout@v2
+#       # docker build 수행
+# #       - name: Set up docker buildx
+# #         id: buildx
+# #         uses: docker/setup-buildx-action@v1
+# #       - name: Cache docker layers
+# #         uses: actions/cache@v2
+# #         with:
+# #           path: /tmp/.buildx-cache
+# #           key: ${{ runner.os }}-buildx-${{ env.VERSION }}
+# #           restore-keys: |
+# #             ${{ runner.os }}-buildx-
+#       - name: Docker meta
+#         id: docker_meta
+#         uses: crazy-max/ghaction-docker-meta@v1
+#         with:
+#           images: teichae/node
+#           tag-semver: |
+#             {{version}}
+#             {{major}}.{{minor}}
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v1
+#       # GitHub 컨테이너 레지스트리에 로그인 후 빌드 & 푸시
+#       - name: Login to ghcr
+#         uses: docker/login-action@v1
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.TOKEN }}
+#       - name: Build and push
+#         id: docker_build
+#         uses: docker/build-push-action@v2
+#         with:
+#           file: ./Dockerfile
+#           platforms: amd64
+#           push: true
+#           builder: ${{ steps.buildx.outputs.name }}
+#           tags: ${{ env.DOCKER_IMAGE }}:latest
+#   # 배포 Job
+#   deploy:
+#     needs: build  # build 후에 실행되도록 정의
+#     name: Deploy
+#     runs-on: [ self-hosted, label-go ] # AWS ./configure에서 사용할 label명
+#     steps:
+#       - name: Login to ghcr
+#         uses: docker/login-action@v1
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.TOKEN }}
+#       # 3000 -> 80 포트로 수행하도록 지정
+#       - name: Docker run
+#         run: |
+#           docker stop ${{ env.NAME }} && docker rm ${{ env.NAME }} && docker rmi ${{ env.DOCKER_IMAGE }}:latest
+#           docker run -d -p 80:3000 --name go_cicd --restart always ${{ env.DOCKER_IMAGE }}:latest
+
+
+name: Github Actions
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+env:
+  DOCKER_IMAGE: frwksdocker/rj_devops_backend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+#         uses: actions/checkout@a81bbbf8298c0fa03ea29cdc473d45769f953675
+#         uses: actions/checkout@v2
+#         with:
+#           lfs: true
+#           token: ${{ secrets.TOKEN }}
+        uses: actions/checkout@v2.3.4
+        with:
+          token: ${{ secrets.TOKEN}}
+      -
+        name: Docker meta
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: teichae/node
+          tag-semver: |
+            {{version}}
+            {{major}}.{{minor}}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+#           builder: ${{ steps.buildx.outputs.name }}
+          tags: frwksdocker/rj_devops_backend
+#           tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+
+#           tags: ${{ env.DOCKER_IMAGE }}:latest
+
+
+  # 배포 Job
+  deploy:
+    needs: build  # build 후에 실행되도록 정의
+    name: Deploy
+    runs-on: [ self-hosted, label-go ] # AWS ./configure에서 사용할 label명
+    steps:
+      - name: Login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.TOKEN }}
+          
+#       - name: GCP login
+#         uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+#         with:
+#             service_account_key: ${{ secrets.GCP_KEY }}
+#             project_id: ${{ secrets.GCP_ID }}
+      # 3000 -> 80 포트로 수행하도록 지정
+      - name: Docker run
+        run: |
+          docker container stop rj_backend
+          docker container rm rj_backend
+          docker rmi rj_backend
+          docker pull ${{ env.DOCKER_IMAGE }}:latest
+          docker run -it -d -p 8080:8080 --name rj_backend --restart always ${{ env.DOCKER_IMAGE }}:latest
+          
+          
+    #      docker stop $(docker ps -a -q)
+   #       docker rm $(docker ps -a -q)
+  #        docker rmi $(docker images -q)
+ #         docker pull ${{ env.DOCKER_IMAGE }}:latest
+#          docker run -it -d -p 8080:8080 --name rj_backend --restart always ${{ env.DOCKER_IMAGE }}:latest
+          
+          
+          
+          
